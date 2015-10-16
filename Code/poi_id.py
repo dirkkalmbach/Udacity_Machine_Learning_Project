@@ -23,7 +23,9 @@ from sklearn import metrics
 #features_list = ['poi','salary',"bonus", 'restricted_stock_deferred',"fraction_to_poi", "fraction_from_poi"]
 #features_list = ['poi','salary',"bonus", "strength_of_email_conn_to_POI",'director_fees',"total_stock_value", "restricted_stock"]
 #features_list = ['poi', 'bonus', 'total_stock_value', 'salary', 'fraction_to_poi', 'exercised_stock_options','deferred_income','long_term_incentive']
-features_list = ['poi', 'bonus', 'total_stock_value', 'salary','deferred_income', "strength_of_email_conn_to_POI", 'exercised_stock_options','long_term_incentive']
+#features_list = ['poi', 'bonus', 'total_stock_value', 'salary','deferred_income', 'exercised_stock_options','long_term_incentive'] #k=6
+#features_list = ['poi', 'bonus', 'total_stock_value', 'salary','deferred_income', "strength_of_email_conn_to_POI", 'exercised_stock_options','long_term_incentive'] #k=7
+features_list = ['poi', 'bonus', 'total_stock_value', 'salary','deferred_income', "strength_of_email_conn_to_POI", 'exercised_stock_options','long_term_incentive','fraction_to_poi'] #k=8
 
 ### Load the dictionary containing the dataset
 data_dict = pickle.load(open("final_project_dataset.pkl", "r") )
@@ -118,7 +120,7 @@ features_train, features_test, labels_train, labels_test = cross_validation.trai
 
 #kfold
 from sklearn.cross_validation import KFold
-kf=KFold(len(labels), 3)
+kf=KFold(len(labels), 2)
 for train_indices, test_indices in kf:
 	#make training and testing datasets
 	features_train = [features[ii] for ii in train_indices]
@@ -138,22 +140,26 @@ clf = GaussianNB()
 
 clf.fit(features_train, labels_train) # Train it on the training set
 print "training time:", round(time()-t0, 3), "s"
+print
 
 # PREDICTION:
 pred = clf.predict(features_test)
 
+
 # VALIDATE MODEL:
+print "MODEL VALIDATION:"
+print "================="
 print "accuracy_score: ", metrics.accuracy_score(labels_test, pred)
 print "precision_score: ", metrics.precision_score(labels_test, pred) 
 print "recall_score: ", metrics.recall_score(labels_test, pred)
 print "f_score: ", metrics.f1_score(labels_test, pred)
-
+print
 
 # Naive BAYES:
 #clf = GaussianNB()    # Provided to give you a starting point. Try a varity of classifiers.
 
 # DECISION TREE:
-#clf = tree.DecisionTreeClassifier(criterion="gini", min_samples_split=2)
+#clf = tree.DecisionTreeClassifier(criterion="gini", min_samples_split=5)
 
 
 # SVM:
@@ -176,7 +182,7 @@ print "f_score: ", metrics.f1_score(labels_test, pred)
 ### shuffle split cross validation. For more info: 
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
 
-test_classifier(clf, my_dataset, features_list)
+#test_classifier(clf, my_dataset, features_list)
 
 ### Dump your classifier, dataset, and features_list so 
 ### anyone can run/check your results.

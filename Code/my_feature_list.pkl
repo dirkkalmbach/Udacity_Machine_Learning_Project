@@ -15,4 +15,6 @@ aS'exercised_stock_options'
 p7
 aS'long_term_incentive'
 p8
+aS'fraction_to_poi'
+p9
 a.

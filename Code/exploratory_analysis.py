@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Oct 11 21:48:32 2015
-
-@author: dirkkalmbach
+This file contains code snippets to explore the enron dataset.
 """
 
+
+#--------------------------------->
+# Import Statement
 import sys
 import pickle
 sys.path.append("../tools/")
@@ -15,14 +16,18 @@ import matplotlib.pyplot as plt
 import pprint
 features_list = ['poi','salary',"strength_of_email_conn_to_POI"]
 data_dict = pickle.load(open("final_project_dataset.pkl", "r") )
+#<---------------------------------
+
 
 #--------------------------------->
 ### Task 2: Remove outliers
 del data_dict['TOTAL']
 #<---------------------------------
 
+
 #--------------------------------->
 ### Task 3: Create new feature(s)
+
 # 1. Create new feature for email-connection:
 def create_email_conn_feature(data_dict):
 	def email_conn(from_poi, to_poi, from_mess, to_mess):
@@ -90,16 +95,21 @@ l, f = targetFeatureSplit(d)
 
 
 #--------------------------------->
+#Feature Selection
 print "------- SelectKBest --------"
 #Use sklearn for feature selection
-from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import SelectKBest, f_classif
 #selection = SelectKBest(k=3)
 #f = SelectKBest(k=5).fit_transform(f,l)
-t=SelectKBest(k=7)
+t=SelectKBest(f_classif, k=7)
 t.fit(f,l)
 
 print t.get_support() #shows selected features
-print colnames #to compare
+
+# to identify features print out features list (without poi)
+colnames.remove('poi')
+print "Feature list to compare: "
+print colnames
 #<---------------------------------
 
 # Feature Importance
@@ -113,7 +123,7 @@ model = ExtraTreesClassifier()
 model.fit(f, l)
 # display the relative importance of each attribute
 print(model.feature_importances_)
-
+#<---------------------------------
 
 
 # Recursive Feature Elimination
@@ -132,31 +142,6 @@ rfe = rfe.fit(f,l)
 print(rfe.support_)
 print(rfe.ranking_)
 
-# to identify features print out features list (without poi)
-colnames.remove('poi')
-print colnames
-
-
-'''
-from sklearn import tree
-clf = tree.DecisionTreeClassifier(min_samples_split=5)
-
-
-
-test_classifier(clf, d, colnames)
-
-### Dump your classifier, dataset, and features_list so 
-### anyone can run/check your results.
-
-
-
-dump_classifier_and_data(clf, my_dataset, features_list)
-
-print "Done!"
-'''
-
-
-
 
 
 
@@ -164,6 +149,7 @@ print "Done!"
 #data = featureFormat(data_dict, features_list, sort_keys = True)
 
 
+#--------------------------------->
 ## FEATURE EXAMINATION
 def countNaN(a):
 	names_poi=[]
@@ -180,30 +166,15 @@ def countNaN(a):
 				if data_dict[key][a] == "NaN":
 					n_poi+=1
 					names_poi.append(key)
-	#d["NaNs_nonpoi"]=n
-	#d["NaNs_poi"]=n_poi
-	#d["POI":{"count":n_poi}]
 	d = {'POI': {'count': n_poi, 'names': names_poi}, 'NoPOI': {'count': n, 'names': names_nonpoi}}
 	return d	#, names_nonpoi, names_poi
 
 print countNaN('email_address')
+#<---------------------------------
 
 
 
-
-
-
-for i in data_dict.items()[0][1]:
-	print i
-
-
-
-
-
-
-
-
-
+#--------------------------------->
 # Plotting Outliers
 def PlotOutlier(f1,f2):
 	x=[]; y=[]; x_poi=[]; y_poi=[]
@@ -233,69 +204,4 @@ def PlotOutlier(f1,f2):
 	print len(x), len(y)
 #PlotOutlier("strength_of_email_conn_to_POI",'shared_receipt_with_poi')
 PlotOutlier('salary', "bonus")
-
-'''
-
-
-
-
-
-
-'''
-# ab hier Code-Reste:
-
-
-import matplotlib.pyplot as plt
-from numpy.random import randn
-fig=plt.figure()
-ax1=fig.add_subplot(2,2,1)
-plt.plot(randn(50).cumsum(),'k--')
-
-x=[]; y=[]; c=[]
-for key in data_dict:
-	x.append(data_dict[key]["salary"])
-	y.append(data_dict[key]["bonus"])
-	c.append(data_dict[key]["poi"])
-plt.scatter(x,y)
-
-X = [1,2,3,4]
-Y1 = [4,8,12,16]
-Y2 = [1,4,9,16]
-plt.scatter(X,Y1,color='red')
-plt.scatter(X,Y2,color='blue')
-plt.show()
-
-def PlotOutlier(f1,f2):
-	x=[]; y=[]; x_poi=[]; y_poi=[]
-	for key in data_dict:
-		if data_dict[key][f1]!="NaN" and data_dict[key][f2]!="NaN":
-			if data_dict[key]["poi"]==False:
-				x.append(data_dict[key][f1])
-				y.append(data_dict[key][f2])
-	for key in data_dict:
-		if data_dict[key][f1]!="NaN" and data_dict[key][f2]!="NaN":
-			if data_dict[key]["poi"]==True:
-				x_poi.append(data_dict[key][f1])
-				y_poi.append(data_dict[key][f2])	
-	
-	
-	plt.scatter(x_poi,y_poi,color='red')
-	plt.scatter(x,y,color='blue')
-	plt.show()
-
-PlotOutlier("salary","bonus")
-
-
-plt.scatter(x,y,color='red')
-plt.scatter(x,c,color='blue')
-plt.show()
-
-
-## OUTLIER DETECTION
-from ggplot import *
-
-print ggplot(mtcars, aes('mpg', 'qsec')) + \
-  geom_point(colour='steelblue') + \
-  scale_x_continuous(breaks=[10,20,30],  \
-                     labels=["horrible", "ok", "awesome"])
-'''
+#<---------------------------------
