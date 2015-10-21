@@ -80,14 +80,23 @@ print "Number of features: ", len(data_dict.items()[0][1])
 colnames=[]
 for i in data_dict.values()[0]:
 	colnames.append(i)
+	
 # get poi first entry:
 i=colnames.index("poi")
 colnames[0], colnames[i] = colnames[i], colnames[0]
-j=colnames.index("email_address")
-colnames.pop(j) #del email-adress (problems with @)
 
+#del email-adress (problems with @)
+j=colnames.index("email_address")
+colnames.pop(j) 
+
+#remove all message-features (I use my new built feature at the beginning):
 colnames.remove("from_messages")
 colnames.remove("to_messages")
+#colnames.remove('fraction_to_poi')
+
+#add 'strength_of_email_conn_to_POI':
+colnames.append('strength_of_email_conn_to_POI')
+
 
 d = featureFormat(data_dict, colnames, sort_keys = True)
 l, f = targetFeatureSplit(d)
@@ -96,21 +105,26 @@ l, f = targetFeatureSplit(d)
 
 #--------------------------------->
 #Feature Selection
-print "------- SelectKBest --------"
-#Use sklearn for feature selection
-from sklearn.feature_selection import SelectKBest, f_classif
-#selection = SelectKBest(k=3)
-#f = SelectKBest(k=5).fit_transform(f,l)
-t=SelectKBest(f_classif, k=7)
-t.fit(f,l)
+def KBest(f, l, k):
+	print "------- SelectKBest --------"
+	#Use sklearn for feature selection
+	from sklearn.feature_selection import SelectKBest, f_classif
+	t=SelectKBest(f_classif, k)
+	t.fit(f,l)
+	if 'poi' in colnames:	
+		colnames.remove('poi')
+	
+	temp = [index for index,value in enumerate(t.get_support()) if value == True]
+	selectedFeatures=[]
+	for i in temp:
+		selectedFeatures.append(colnames[i])
+	return selectedFeatures
+	#<---------------------------------
+KBest(f,l,7)
 
-print t.get_support() #shows selected features
 
-# to identify features print out features list (without poi)
-colnames.remove('poi')
-print "Feature list to compare: "
-print colnames
-#<---------------------------------
+
+
 
 # Feature Importance
 print "------- Extra Tree --------"
